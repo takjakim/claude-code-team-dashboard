@@ -1,4 +1,4 @@
-# tmux-team-dashboard
+# claude-code-team-dashboard
 
 Real-time monitoring dashboard for tmux-based AI agent orchestration systems.
 
@@ -16,8 +16,8 @@ Real-time monitoring dashboard for tmux-based AI agent orchestration systems.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/yourusername/tmux-team-dashboard.git
-cd tmux-team-dashboard
+git clone https://github.com/takjakim/claude-code-team-dashboard.git
+cd claude-code-team-dashboard
 
 # 2. Configure your team (edit team-config.json)
 vim team-config.json

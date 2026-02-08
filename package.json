@@ -1,5 +1,5 @@
 {
-  "name": "tmux-team-dashboard",
+  "name": "claude-code-team-dashboard",
   "version": "1.0.0",
   "description": "Real-time team monitoring dashboard for tmux-based AI agent orchestration",
   "main": "index.html",
@@ -23,7 +23,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/takjakim/claude-code-team-dashboard.git"
   },
   "engines": {
     "node": ">=16.0.0"
