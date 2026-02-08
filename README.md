@@ -1,6 +1,8 @@
 # claude-code-team-dashboard
 
-Real-time monitoring dashboard for tmux-based AI agent orchestration systems.
+Real-time monitoring dashboard for Claude Code agent orchestration systems.
+
+Supports multiple data sources: tmux, log files, file-based status, or custom adapters.
 
 ![Dashboard Preview](docs/preview.png)
 
@@ -94,12 +96,68 @@ The dashboard detects Claude Code status from tmux pane content:
 | Critical | 90%+ | Red bar + animation |
 | COMPRESS | Detected | Red warning banner |
 
+## Adapters (Alternative Data Sources)
+
+The dashboard works with any data source that generates `team-status.json`. Use adapters for non-tmux setups:
+
+### Demo Mode (No Dependencies)
+
+```bash
+# Generate simulated data for testing
+watch -n2 ./adapters/demo.sh
+```
+
+### File-Based Status
+
+Each agent writes its own status file:
+
+```bash
+# Agent writes to: .omc/agent-status/0.json
+echo '{"status": "DOING", "task": "Working on feature", "ctx": 45}' > .omc/agent-status/0.json
+
+# Run file-based adapter
+watch -n2 ./adapters/file-based.sh
+```
+
+### Log File Watcher
+
+Parse Claude Code output logs:
+
+```bash
+# Point to log directory
+LOG_DIR=.claude-logs watch -n2 ./adapters/log-watcher.sh
+```
+
+### Custom Adapter
+
+Create your own by generating `team-status.json`:
+
+```json
+{
+  "timestamp": "2024-01-01T12:00:00",
+  "team": [
+    {
+      "pane": 0,
+      "name": "Agent Name",
+      "status": "DOING",
+      "progress": 50,
+      "ctx": 45,
+      "currentTask": {"title": "Task description", "details": []}
+    }
+  ]
+}
+```
+
 ## File Structure
 
 ```
-tmux-team-dashboard/
+claude-code-team-dashboard/
 ├── index.html          # Dashboard UI
-├── update-status.sh    # Status collection script
+├── update-status.sh    # tmux status adapter (default)
+├── adapters/
+│   ├── demo.sh         # Demo/test data generator
+│   ├── file-based.sh   # File-based status reader
+│   └── log-watcher.sh  # Log file parser
 ├── team-config.json    # Team configuration
 ├── team-status.json    # Generated status (gitignored)
 ├── team-state.json     # State persistence (gitignored)
@@ -151,9 +209,10 @@ CSS variables in `index.html`:
 ## Requirements
 
 - bash 4.0+
-- tmux 3.0+
+- jq (for JSON parsing)
 - Python 3 (for http.server) or Node.js (for serve)
 - Modern browser (Chrome, Firefox, Safari, Edge)
+- tmux 3.0+ (only if using default `update-status.sh`)
 
 ## License
 
