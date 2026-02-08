@@ -16,7 +16,23 @@ Supports multiple data sources: tmux, log files, file-based status, or custom ad
 
 ## Quick Start
 
-### Option 1: Ask Claude Code to Install
+### Step 1: Set Up Your Agent Team in tmux
+
+First, create your agent team using tmux. Example:
+
+```bash
+# Create a 6-pane tmux session
+tmux new-session -s my-team -n agents
+tmux split-window -h
+tmux split-window -v
+tmux select-pane -t 0 && tmux split-window -v
+tmux select-pane -t 2 && tmux split-window -v
+tmux select-pane -t 4 && tmux split-window -v
+```
+
+Then launch Claude Code (or other agents) in each pane.
+
+### Step 2: Install Dashboard
 
 Copy and paste this prompt into Claude Code:
 
@@ -226,26 +242,26 @@ CSS variables in `index.html`:
 
 ## Claude Code Prompts
 
-Useful prompts to paste into Claude Code:
+Copy-paste these prompts into any of your Claude Code agents:
 
-**Install & Configure:**
+### Initial Setup
 ```
-Clone https://github.com/takjakim/claude-code-team-dashboard and set it up for my tmux session "{SESSION_NAME}". Configure team-config.json based on my current pane layout.
+Clone https://github.com/takjakim/claude-code-team-dashboard and configure it for my tmux session. Detect my current pane layout and set up team-config.json accordingly. Then start the dashboard on port 8080.
 ```
 
-**Start Dashboard:**
+### Start Dashboard (Already Installed)
 ```
 Start the team dashboard - run update-status.sh every 2 seconds and serve on port 8080.
 ```
 
-**Add New Agent:**
+### Reconfigure Team
 ```
-Add a new agent to team-dashboard: name="{NAME}", role="{ROLE}", model="Claude" in pane {N}.
+Update team-dashboard/team-config.json based on my current tmux pane layout. Detect agent names and roles from pane content.
 ```
 
-**Demo Mode (No tmux):**
+### Demo Mode (Testing Without Agents)
 ```
-Run team-dashboard in demo mode without tmux dependency.
+Run team-dashboard in demo mode to preview the UI without actual agents.
 ```
 
 ## License
