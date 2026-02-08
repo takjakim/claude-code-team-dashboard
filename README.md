@@ -4,9 +4,27 @@
 
 Real-time monitoring dashboard for Claude Code agent orchestration systems.
 
-Supports multiple data sources: tmux, log files, file-based status, or custom adapters.
-
 ![Dashboard Preview](docs/preview.png)
+
+## Install with Claude Code
+
+**Just paste this prompt into any Claude Code agent:**
+
+```
+Clone https://github.com/takjakim/claude-code-team-dashboard and configure it for my tmux session. Detect my current pane layout and set up team-config.json accordingly. Then start the dashboard on port 8080.
+```
+
+That's it! Claude will handle everything.
+
+### Other Useful Prompts
+
+| Task | Prompt |
+|------|--------|
+| Start Dashboard | `Start the team dashboard on port 8080` |
+| Reconfigure Team | `Update team-dashboard config based on my current tmux panes` |
+| Demo Mode | `Run team-dashboard in demo mode` |
+
+---
 
 ## Features
 
@@ -15,12 +33,11 @@ Supports multiple data sources: tmux, log files, file-based status, or custom ad
 - **Activity Feed**: See recent completions and current tasks at a glance
 - **Compress Detection**: Automatic warning when context compression is needed
 - **Mission Control UI**: Professional dark theme inspired by NASA control rooms
+- **Multiple Data Sources**: tmux, log files, file-based status, or custom adapters
 
-## Quick Start
+## Manual Installation
 
 ### Step 1: Set Up Your Agent Team in tmux
-
-First, create your agent team using tmux. Example:
 
 ```bash
 # Create a 6-pane tmux session
@@ -32,17 +49,9 @@ tmux select-pane -t 2 && tmux split-window -v
 tmux select-pane -t 4 && tmux split-window -v
 ```
 
-Then launch Claude Code (or other agents) in each pane.
+Launch Claude Code (or other agents) in each pane.
 
 ### Step 2: Install Dashboard
-
-Copy and paste this prompt into Claude Code:
-
-```
-Clone https://github.com/takjakim/claude-code-team-dashboard to ./team-dashboard and configure it for my current tmux session. Update team-config.json with appropriate team names for my panes.
-```
-
-### Option 2: Manual Installation
 
 ```bash
 # 1. Clone the repository
@@ -104,15 +113,12 @@ open http://localhost:8080
 
 ## Status Detection
 
-The dashboard detects Claude Code status from tmux pane content:
-
 | Pattern | Status | Meaning |
 |---------|--------|---------|
 | `✶ Processing…` | DOING | Actively working |
 | `✳ Actualizing…` | DOING | Agent execution |
 | `⎿ Running` | DOING | Tool execution |
 | `✻ Baked for Xm` | TODO | Idle/waiting |
-| `thinking` | TODO | Thinking but idle |
 | `agents:N` | DOING | N agents running |
 
 ## Context Warnings
@@ -124,56 +130,19 @@ The dashboard detects Claude Code status from tmux pane content:
 | Critical | 90%+ | Red bar + animation |
 | COMPRESS | Detected | Red warning banner |
 
-## Adapters (Alternative Data Sources)
+## Adapters (Non-tmux)
 
-The dashboard works with any data source that generates `team-status.json`. Use adapters for non-tmux setups:
-
-### Demo Mode (No Dependencies)
+Use adapters for non-tmux setups:
 
 ```bash
-# Generate simulated data for testing
+# Demo mode (no dependencies)
 watch -n2 ./adapters/demo.sh
-```
 
-### File-Based Status
-
-Each agent writes its own status file:
-
-```bash
-# Agent writes to: .omc/agent-status/0.json
-echo '{"status": "DOING", "task": "Working on feature", "ctx": 45}' > .omc/agent-status/0.json
-
-# Run file-based adapter
+# File-based status
 watch -n2 ./adapters/file-based.sh
-```
 
-### Log File Watcher
-
-Parse Claude Code output logs:
-
-```bash
-# Point to log directory
+# Log file watcher
 LOG_DIR=.claude-logs watch -n2 ./adapters/log-watcher.sh
-```
-
-### Custom Adapter
-
-Create your own by generating `team-status.json`:
-
-```json
-{
-  "timestamp": "2024-01-01T12:00:00",
-  "team": [
-    {
-      "pane": 0,
-      "name": "Agent Name",
-      "status": "DOING",
-      "progress": 50,
-      "ctx": 45,
-      "currentTask": {"title": "Task description", "details": []}
-    }
-  ]
-}
 ```
 
 ## File Structure
@@ -187,93 +156,17 @@ claude-code-team-dashboard/
 │   ├── file-based.sh   # File-based status reader
 │   └── log-watcher.sh  # Log file parser
 ├── team-config.json    # Team configuration
-├── team-status.json    # Generated status (gitignored)
-├── team-state.json     # State persistence (gitignored)
-├── package.json        # npm configuration
-└── README.md           # This file
-```
-
-## Development
-
-```bash
-# Install dev dependencies
-npm install
-
-# Run with auto-reload
-npm run dev
-
-# Or manually:
-# Terminal 1: Status updater
-npm run watch
-
-# Terminal 2: HTTP server
-npm run start
-```
-
-## Customization
-
-### Adding New Agents
-
-1. Edit `team-config.json` to add team members
-2. Update `update-status.sh` functions:
-   - `get_name()`
-   - `get_role()`
-   - `get_model()`
-
-### Theming
-
-CSS variables in `index.html`:
-
-```css
-:root {
-    --bg-primary: #0a0e14;
-    --accent-cyan: #00d9ff;
-    --accent-green: #3fb950;
-    --accent-amber: #f0883e;
-    --accent-red: #f85149;
-}
+└── package.json        # npm configuration
 ```
 
 ## Requirements
 
 - bash 4.0+
 - jq (for JSON parsing)
-- Python 3 (for http.server) or Node.js (for serve)
-- Modern browser (Chrome, Firefox, Safari, Edge)
-- tmux 3.0+ (only if using default `update-status.sh`)
-
-## Claude Code Prompts
-
-Copy-paste these prompts into any of your Claude Code agents:
-
-### Initial Setup
-```
-Clone https://github.com/takjakim/claude-code-team-dashboard and configure it for my tmux session. Detect my current pane layout and set up team-config.json accordingly. Then start the dashboard on port 8080.
-```
-
-### Start Dashboard (Already Installed)
-```
-Start the team dashboard - run update-status.sh every 2 seconds and serve on port 8080.
-```
-
-### Reconfigure Team
-```
-Update team-dashboard/team-config.json based on my current tmux pane layout. Detect agent names and roles from pane content.
-```
-
-### Demo Mode (Testing Without Agents)
-```
-Run team-dashboard in demo mode to preview the UI without actual agents.
-```
+- Python 3 or Node.js (for http server)
+- Modern browser
+- tmux 3.0+ (only if using default adapter)
 
 ## License
 
 MIT
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
