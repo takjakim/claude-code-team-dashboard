@@ -1,5 +1,7 @@
 # claude-code-team-dashboard
 
+[한국어](README.ko.md) | English
+
 Real-time monitoring dashboard for Claude Code agent orchestration systems.
 
 Supports multiple data sources: tmux, log files, file-based status, or custom adapters.
