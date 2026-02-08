@@ -1,0 +1,35 @@
+{
+  "name": "tmux-team-dashboard",
+  "version": "1.0.0",
+  "description": "Real-time team monitoring dashboard for tmux-based AI agent orchestration",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "serve": "npx serve -p 8080",
+    "update": "./update-status.sh",
+    "watch": "watch -n2 ./update-status.sh",
+    "dev": "concurrently \"npm run watch\" \"npm run start\""
+  },
+  "keywords": [
+    "dashboard",
+    "tmux",
+    "monitoring",
+    "ai-agents",
+    "claude",
+    "team-management",
+    "real-time"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0",
+    "serve": "^14.0.0"
+  }
+}

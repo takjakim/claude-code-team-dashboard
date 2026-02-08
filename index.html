@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HWATU TEAM CONTROL</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e14;
+            --bg-secondary: #0d1117;
+            --bg-tertiary: #161b22;
+            --bg-card: #1c2128;
+            --border: #30363d;
+            --border-highlight: #3d444d;
+
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+
+            --accent-cyan: #00d9ff;
+            --accent-cyan-dim: rgba(0, 217, 255, 0.15);
+            --accent-green: #3fb950;
+            --accent-green-dim: rgba(63, 185, 80, 0.15);
+            --accent-amber: #f0883e;
+            --accent-amber-dim: rgba(240, 136, 62, 0.15);
+            --accent-red: #f85149;
+            --accent-red-dim: rgba(248, 81, 73, 0.15);
+            --accent-purple: #a371f7;
+            --accent-purple-dim: rgba(163, 113, 247, 0.15);
+
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-display: 'Space Grotesk', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-mono);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Scanline effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.03) 2px,
+                rgba(0, 0, 0, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Grid background */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 217, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 217, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-purple) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--bg-primary);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+        }
+
+        .header-title {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, var(--text-primary) 0%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            box-shadow: 0 0 8px var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        .live-dot.offline {
+            background: var(--accent-red);
+            box-shadow: 0 0 8px var(--accent-red);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
+        }
+
+        .timestamp {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .stat-card.utilization::before { background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); }
+        .stat-card.active::before { background: var(--accent-green); }
+        .stat-card.idle::before { background: var(--accent-amber); }
+        .stat-card.done::before { background: var(--accent-cyan); }
+        .stat-card.activity::before { background: var(--accent-purple); }
+
+        .stat-label {
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 36px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .stat-card.utilization .stat-value { color: var(--accent-cyan); }
+        .stat-card.active .stat-value { color: var(--accent-green); }
+        .stat-card.idle .stat-value { color: var(--accent-amber); }
+        .stat-card.done .stat-value { color: var(--accent-cyan); }
+        .stat-card.activity .stat-value { color: var(--accent-purple); }
+
+        .stat-unit {
+            font-size: 14px;
+            font-weight: 400;
+            opacity: 0.7;
+        }
+
+        .stat-bar {
+            margin-top: 12px;
+            height: 4px;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        .stat-card.utilization .stat-bar-fill { background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); }
+        .stat-card.active .stat-bar-fill { background: var(--accent-green); }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+        }
+
+        /* Team Grid */
+        .team-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-tertiary);
+        }
+
+        .section-title {
+            font-size: 12px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-cyan);
+            border-radius: 2px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1px;
+            background: var(--border);
+        }
+
+        .agent-card {
+            background: var(--bg-secondary);
+            padding: 20px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .agent-card:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .agent-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+        }
+
+        .agent-card.status-DOING::before { background: var(--accent-green); box-shadow: 0 0 10px var(--accent-green); }
+        .agent-card.status-TODO::before { background: var(--accent-amber); }
+        .agent-card.status-DONE::before { background: var(--accent-cyan); }
+
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .agent-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .agent-id {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .agent-name {
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .agent-role {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .agent-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .agent-status.DOING {
+            background: var(--accent-green-dim);
+            color: var(--accent-green);
+        }
+
+        .agent-status.TODO {
+            background: var(--accent-amber-dim);
+            color: var(--accent-amber);
+        }
+
+        .agent-status.DONE {
+            background: var(--accent-cyan-dim);
+            color: var(--accent-cyan);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .agent-status.DOING .status-dot {
+            animation: pulse 1.5s infinite;
+        }
+
+        .agent-task {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .task-label {
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .task-title {
+            font-size: 12px;
+            color: var(--text-primary);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .task-details {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border);
+        }
+
+        .task-detail {
+            font-size: 10px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            display: flex;
+            gap: 6px;
+        }
+
+        .task-detail::before {
+            content: '›';
+            color: var(--accent-cyan);
+        }
+
+        .agent-progress {
+            margin-bottom: 12px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--bg-primary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .status-DOING .progress-fill { background: linear-gradient(90deg, var(--accent-green), #7ee787); }
+        .status-TODO .progress-fill { background: var(--accent-amber); }
+        .status-DONE .progress-fill { background: var(--accent-cyan); }
+
+        .agent-completed {
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
+
+        .completed-label {
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .completed-label::before {
+            content: '✓';
+            color: var(--accent-green);
+        }
+
+        .completed-item {
+            font-size: 10px;
+            color: var(--text-secondary);
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .completed-item::before {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+        }
+
+        .model-badge {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+
+        .model-badge.claude {
+            background: var(--accent-amber-dim);
+            color: var(--accent-amber);
+        }
+
+        .model-badge.gemini {
+            background: var(--accent-purple-dim);
+            color: var(--accent-purple);
+        }
+
+        .external-badge {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: var(--accent-purple-dim);
+            color: var(--accent-purple);
+            margin-left: 6px;
+        }
+
+        /* Context Warning */
+        .ctx-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+        }
+
+        .ctx-indicator.warning {
+            background: var(--accent-amber-dim);
+            border-color: var(--accent-amber);
+        }
+
+        .ctx-indicator.critical {
+            background: var(--accent-red-dim);
+            border-color: var(--accent-red);
+            animation: ctx-pulse 1s infinite;
+        }
+
+        @keyframes ctx-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .ctx-label {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ctx-value {
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .ctx-indicator.normal .ctx-value { color: var(--accent-green); }
+        .ctx-indicator.warning .ctx-value { color: var(--accent-amber); }
+        .ctx-indicator.critical .ctx-value { color: var(--accent-red); }
+
+        .ctx-bar {
+            flex: 1;
+            height: 4px;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .ctx-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .ctx-indicator.normal .ctx-bar-fill { background: var(--accent-green); }
+        .ctx-indicator.warning .ctx-bar-fill { background: var(--accent-amber); }
+        .ctx-indicator.critical .ctx-bar-fill { background: var(--accent-red); }
+
+        .compress-warning {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding: 6px 10px;
+            border-radius: 4px;
+            background: var(--accent-red-dim);
+            border: 1px solid var(--accent-red);
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--accent-red);
+            animation: compress-blink 0.8s infinite;
+        }
+
+        @keyframes compress-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .compress-warning::before {
+            content: '⚠';
+        }
+
+        /* Stats Warning Indicator */
+        .stat-card.has-warning {
+            border-color: var(--accent-amber);
+        }
+
+        .stat-card.has-critical {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 15px rgba(248, 81, 73, 0.2);
+        }
+
+        /* Activity Feed */
+        .activity-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .activity-feed {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        .activity-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s ease;
+        }
+
+        .activity-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .activity-agent {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .activity-pane {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .activity-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .activity-time {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .activity-message {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            padding-left: 20px;
+            border-left: 2px solid var(--border);
+            margin-left: 4px;
+        }
+
+        .activity-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 9px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            margin-top: 8px;
+            margin-left: 20px;
+        }
+
+        .activity-type.working {
+            background: var(--accent-green-dim);
+            color: var(--accent-green);
+        }
+
+        .activity-type.completed {
+            background: var(--accent-cyan-dim);
+            color: var(--accent-cyan);
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .loading-hint {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .loading-hint code {
+            background: var(--bg-tertiary);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .activity-section {
+                order: -1;
+            }
+
+            .activity-feed {
+                max-height: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">H</div>
+                <div>
+                    <h1 class="header-title">HWATU TEAM CONTROL</h1>
+                    <p class="header-subtitle">AI Agent Orchestration System</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="live-indicator">
+                    <span id="live-dot" class="live-dot"></span>
+                    <span id="live-text">CONNECTING</span>
+                </div>
+                <div id="timestamp" class="timestamp">--:--:--</div>
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card utilization">
+                <div class="stat-label">Utilization</div>
+                <div class="stat-value"><span id="utilization">--</span><span class="stat-unit">%</span></div>
+                <div class="stat-bar">
+                    <div id="utilization-bar" class="stat-bar-fill" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="stat-card active">
+                <div class="stat-label">Active Agents</div>
+                <div class="stat-value"><span id="active-count">-</span><span class="stat-unit">/6</span></div>
+                <div class="stat-bar">
+                    <div id="active-bar" class="stat-bar-fill" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="stat-card idle">
+                <div class="stat-label">Idle</div>
+                <div class="stat-value" id="idle-count">-</div>
+            </div>
+            <div class="stat-card done">
+                <div class="stat-label">Completed</div>
+                <div class="stat-value" id="done-count">-</div>
+            </div>
+            <div class="stat-card activity">
+                <div class="stat-label">Activities</div>
+                <div class="stat-value" id="activity-count">-</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Team Grid -->
+            <section class="team-section">
+                <div class="section-header">
+                    <h2 class="section-title">Agent Status</h2>
+                    <span style="font-size: 10px; color: var(--text-muted);">Real-time monitoring</span>
+                </div>
+                <div id="team-grid" class="team-grid">
+                    <div class="loading" style="grid-column: 1 / -1;">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">Initializing agents...</div>
+                        <div class="loading-hint">Run <code>./update-status.sh</code> to start</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Activity Feed -->
+            <section class="activity-section">
+                <div class="section-header">
+                    <h2 class="section-title">Activity Feed</h2>
+                    <span style="font-size: 10px; color: var(--text-muted);">Recent updates</span>
+                </div>
+                <div id="activity-feed" class="activity-feed">
+                    <div class="empty-state">
+                        <div class="empty-icon">📡</div>
+                        <div class="empty-text">Waiting for activity...</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        let team = [];
+        let lastFetchTime = null;
+        let fetchErrors = 0;
+
+        const defaultTeam = [
+            { pane: 0, name: "UI/UX Reviewer", model: "Claude", role: "Design QA", status: "TODO", progress: 0, currentTask: null, recentCompleted: [] },
+            { pane: 1, name: "QA Engineer", model: "Claude", role: "Quality Assurance", status: "TODO", progress: 0, currentTask: null, recentCompleted: [] },
+            { pane: 2, name: "Logic Analyst", model: "Claude", role: "Game Logic", status: "TODO", progress: 0, currentTask: null, recentCompleted: [] },
+            { pane: 3, name: "SFX/VFX Specialist", model: "Claude", role: "Effects & Animation", status: "TODO", progress: 0, currentTask: null, recentCompleted: [] },
+            { pane: 4, name: "opencode", model: "Gemini", role: "External Partner", status: "TODO", progress: 0, isExternal: true, currentTask: null, recentCompleted: [] },
+            { pane: 5, name: "Dashboard Dev", model: "Claude", role: "Orchestration", status: "TODO", progress: 0, currentTask: null, recentCompleted: [] }
+        ];
+
+        function setConnectionStatus(connected) {
+            const dot = document.getElementById('live-dot');
+            const text = document.getElementById('live-text');
+            if (connected) {
+                dot.classList.remove('offline');
+                text.textContent = 'LIVE';
+            } else {
+                dot.classList.add('offline');
+                text.textContent = 'OFFLINE';
+            }
+        }
+
+        async function fetchStatus() {
+            try {
+                const response = await fetch(`team-status.json?t=${Date.now()}`);
+                if (!response.ok) throw new Error('Status file not found');
+
+                const data = await response.json();
+                team = data.team || defaultTeam;
+                lastFetchTime = new Date(data.timestamp);
+                fetchErrors = 0;
+
+                setConnectionStatus(true);
+                renderDashboard();
+            } catch (error) {
+                fetchErrors++;
+                if (fetchErrors === 1) {
+                    team = defaultTeam;
+                    renderDashboard();
+                }
+                if (fetchErrors >= 3) {
+                    setConnectionStatus(false);
+                }
+            }
+        }
+
+        function updateTimestamp() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { hour12: false });
+            document.getElementById('timestamp').textContent = time;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+
+        function renderDashboard() {
+            // Calculate stats
+            const activeCount = team.filter(m => m.status === 'DOING').length;
+            const idleCount = team.filter(m => m.status === 'TODO').length;
+            const doneCount = team.filter(m => m.status === 'DONE').length;
+            const utilization = Math.round((activeCount / 6) * 100);
+
+            let activityCount = 0;
+            team.forEach(m => {
+                if (m.status === 'DOING') activityCount++;
+                activityCount += (m.recentCompleted || []).length;
+            });
+
+            // Update stats
+            document.getElementById('utilization').textContent = utilization;
+            document.getElementById('utilization-bar').style.width = `${utilization}%`;
+            document.getElementById('active-count').textContent = activeCount;
+            document.getElementById('active-bar').style.width = `${(activeCount / 6) * 100}%`;
+            document.getElementById('idle-count').textContent = idleCount;
+            document.getElementById('done-count').textContent = doneCount;
+            document.getElementById('activity-count').textContent = activityCount;
+
+            // Count context warnings
+            let ctxWarnings = 0;
+            let ctxCritical = 0;
+            team.forEach(m => {
+                const ctx = m.ctx || 0;
+                if (ctx >= 90 || m.compressWarning) ctxCritical++;
+                else if (ctx >= 80) ctxWarnings++;
+            });
+
+            // Update warning indicator in header if needed
+            const activityCard = document.querySelector('.stat-card.activity');
+            if (ctxCritical > 0) {
+                activityCard.classList.add('has-critical');
+                activityCard.classList.remove('has-warning');
+            } else if (ctxWarnings > 0) {
+                activityCard.classList.add('has-warning');
+                activityCard.classList.remove('has-critical');
+            } else {
+                activityCard.classList.remove('has-warning', 'has-critical');
+            }
+
+            // Render team grid
+            const grid = document.getElementById('team-grid');
+            grid.innerHTML = team.map(member => {
+                const currentTask = member.currentTask || { title: '', details: [] };
+                const recentCompleted = member.recentCompleted || [];
+                const taskTitle = currentTask.title || 'Standby';
+
+                const modelBadgeClass = member.model === 'Claude' ? 'claude' : 'gemini';
+                const externalBadge = member.isExternal ? '<span class="external-badge">EXT</span>' : '';
+
+                const detailsHtml = currentTask.details?.slice(0, 2).map(d =>
+                    `<div class="task-detail">${escapeHtml(d)}</div>`
+                ).join('') || '';
+
+                const completedHtml = recentCompleted.slice(0, 2).map(t =>
+                    `<div class="completed-item">${escapeHtml(t.task || t.title || 'Task')}</div>`
+                ).join('');
+
+                // Context indicator
+                const ctx = member.ctx || 0;
+                let ctxClass = 'normal';
+                if (ctx >= 90) ctxClass = 'critical';
+                else if (ctx >= 80) ctxClass = 'warning';
+
+                const ctxHtml = member.model === 'Claude' ? `
+                    <div class="ctx-indicator ${ctxClass}">
+                        <span class="ctx-label">CTX</span>
+                        <div class="ctx-bar">
+                            <div class="ctx-bar-fill" style="width: ${ctx}%"></div>
+                        </div>
+                        <span class="ctx-value">${ctx}%</span>
+                    </div>
+                ` : '';
+
+                // Compress warning
+                const compressHtml = member.compressWarning ? `
+                    <div class="compress-warning">COMPRESS NEEDED</div>
+                ` : '';
+
+                return `
+                    <div class="agent-card status-${member.status}">
+                        <div class="agent-header">
+                            <div class="agent-info">
+                                <div class="agent-id">
+                                    PANE ${member.pane}
+                                    <span class="model-badge ${modelBadgeClass}">${member.model}</span>
+                                    ${externalBadge}
+                                </div>
+                                <div class="agent-name">${member.name}</div>
+                                <div class="agent-role">${member.role}</div>
+                            </div>
+                            <div class="agent-status ${member.status}">
+                                <span class="status-dot"></span>
+                                ${member.status}
+                            </div>
+                        </div>
+
+                        <div class="agent-task">
+                            <div class="task-label">Current Task</div>
+                            <div class="task-title">${escapeHtml(taskTitle)}</div>
+                            ${detailsHtml ? `<div class="task-details">${detailsHtml}</div>` : ''}
+                        </div>
+
+                        <div class="agent-progress">
+                            <div class="progress-header">
+                                <span>Progress</span>
+                                <span>${member.progress}%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${member.progress}%"></div>
+                            </div>
+                        </div>
+
+                        ${ctxHtml}
+                        ${compressHtml}
+
+                        ${completedHtml ? `
+                            <div class="agent-completed">
+                                <div class="completed-label">Recent</div>
+                                ${completedHtml}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            // Render activity feed
+            renderActivityFeed();
+        }
+
+        function renderActivityFeed() {
+            const feed = document.getElementById('activity-feed');
+            const activities = [];
+
+            team.forEach(member => {
+                if (member.status === 'DOING' && member.currentTask?.title) {
+                    activities.push({
+                        pane: member.pane,
+                        name: member.name,
+                        type: 'working',
+                        message: member.currentTask.title,
+                        time: member.currentTask.startedAt || 'now'
+                    });
+                }
+
+                (member.recentCompleted || []).forEach(task => {
+                    activities.push({
+                        pane: member.pane,
+                        name: member.name,
+                        type: 'completed',
+                        message: task.task || task.title || 'Task completed',
+                        time: task.time || 'recently'
+                    });
+                });
+            });
+
+            if (activities.length === 0) {
+                feed.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📡</div>
+                        <div class="empty-text">Waiting for activity...</div>
+                    </div>
+                `;
+                return;
+            }
+
+            feed.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-header">
+                        <div class="activity-agent">
+                            <span class="activity-pane">P${activity.pane}</span>
+                            <span class="activity-name">${activity.name}</span>
+                        </div>
+                        <span class="activity-time">${activity.time}</span>
+                    </div>
+                    <div class="activity-message">${escapeHtml(activity.message)}</div>
+                    <span class="activity-type ${activity.type}">
+                        ${activity.type === 'working' ? '● WORKING' : '✓ COMPLETED'}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // Initialize
+        fetchStatus();
+        updateTimestamp();
+        setInterval(fetchStatus, 2000);
+        setInterval(updateTimestamp, 1000);
+    </script>
+</body>
+</html>

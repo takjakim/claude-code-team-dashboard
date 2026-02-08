@@ -1,0 +1,64 @@
+{
+  "project": {
+    "name": "TEAM CONTROL",
+    "subtitle": "AI Agent Orchestration System"
+  },
+  "tmux": {
+    "session": "hwatu-team",
+    "window": 0
+  },
+  "team": [
+    {
+      "pane": 0,
+      "name": "UI/UX Reviewer",
+      "model": "Claude",
+      "role": "Design Quality Assurance",
+      "isExternal": false
+    },
+    {
+      "pane": 1,
+      "name": "QA Engineer",
+      "model": "Claude",
+      "role": "Quality Assurance",
+      "isExternal": false
+    },
+    {
+      "pane": 2,
+      "name": "Logic Analyst",
+      "model": "Claude",
+      "role": "Game Logic Validation",
+      "isExternal": false
+    },
+    {
+      "pane": 3,
+      "name": "SFX/VFX Specialist",
+      "model": "Claude",
+      "role": "Effects & Animation",
+      "isExternal": false
+    },
+    {
+      "pane": 4,
+      "name": "opencode",
+      "model": "Gemini",
+      "role": "External Partner",
+      "isExternal": true
+    },
+    {
+      "pane": 5,
+      "name": "Dashboard Dev",
+      "model": "Claude",
+      "role": "Orchestration",
+      "isExternal": false
+    }
+  ],
+  "thresholds": {
+    "ctx": {
+      "warning": 80,
+      "critical": 90
+    }
+  },
+  "refresh": {
+    "statusInterval": 2000,
+    "timestampInterval": 1000
+  }
+}
