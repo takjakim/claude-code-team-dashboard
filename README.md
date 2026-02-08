@@ -16,6 +16,16 @@ Supports multiple data sources: tmux, log files, file-based status, or custom ad
 
 ## Quick Start
 
+### Option 1: Ask Claude Code to Install
+
+Copy and paste this prompt into Claude Code:
+
+```
+Clone https://github.com/takjakim/claude-code-team-dashboard to ./team-dashboard and configure it for my current tmux session. Update team-config.json with appropriate team names for my panes.
+```
+
+### Option 2: Manual Installation
+
 ```bash
 # 1. Clone the repository
 git clone https://github.com/takjakim/claude-code-team-dashboard.git
@@ -213,6 +223,30 @@ CSS variables in `index.html`:
 - Python 3 (for http.server) or Node.js (for serve)
 - Modern browser (Chrome, Firefox, Safari, Edge)
 - tmux 3.0+ (only if using default `update-status.sh`)
+
+## Claude Code Prompts
+
+Useful prompts to paste into Claude Code:
+
+**Install & Configure:**
+```
+Clone https://github.com/takjakim/claude-code-team-dashboard and set it up for my tmux session "{SESSION_NAME}". Configure team-config.json based on my current pane layout.
+```
+
+**Start Dashboard:**
+```
+Start the team dashboard - run update-status.sh every 2 seconds and serve on port 8080.
+```
+
+**Add New Agent:**
+```
+Add a new agent to team-dashboard: name="{NAME}", role="{ROLE}", model="Claude" in pane {N}.
+```
+
+**Demo Mode (No tmux):**
+```
+Run team-dashboard in demo mode without tmux dependency.
+```
 
 ## License
 
