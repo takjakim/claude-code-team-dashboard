@@ -1,10 +1,21 @@
-# claude-code-team-dashboard
+# Claude Code Team Dashboard
 
 [한국어](README.ko.md) | English
 
-Real-time monitoring dashboard for Claude Code agent orchestration systems.
+**Real-time dashboard for multi-agent work in tmux** — see who is doing what (DOING/TODO/DONE), track context usage, and catch COMPRESS moments early.
 
 ![Dashboard Preview](docs/preview.png)
+
+## Quickstart
+
+```bash
+git clone https://github.com/takjakim/claude-code-team-dashboard.git
+cd claude-code-team-dashboard
+watch -n2 ./update-status.sh
+python3 -m http.server 8080
+```
+
+Open: <http://localhost:8080>
 
 ## Install with Claude Code
 
@@ -25,6 +36,15 @@ That's it! Claude will handle everything.
 | Demo Mode | `Run team-dashboard in demo mode` |
 
 ---
+
+## Why this exists
+
+Once you run 4–8 agents in tmux panes, you lose time on:
+- jumping between panes to check status
+- missing context limits (80% / 90%)
+- noticing COMPRESS too late
+
+This dashboard keeps the whole team visible, continuously.
 
 ## Features
 
